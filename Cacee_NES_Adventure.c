@@ -156,8 +156,12 @@ int MAXX;
 
 // game bool value
 bool game = true;
-
+// if cacee is facing right bool
 bool right = true; 
+// if its first time loading first level bool
+bool first = true;
+
+bool twoLeft = true;
 //score value
 int score;
 // lives value
@@ -196,15 +200,49 @@ void startingSpaceR()
 }
 void levelOne()
 {
+  //check if its our first load into game
+  if(first)
+  {
+    // if it is, set are initial starting state and set first to false
+    startingSpace();
+    first = false;
+  }
+  // if its not, then we must be coming from right set right starting space
+  else
+  {
+    startingSpaceR();
+    sfx_play(3,2);
+  }
   
+    
   
   level = 1;
 }
-
+// level 2
 void levelTwo()
 {
   
+  sfx_play(3,2);
+  if (twoLeft)
+  {
+    startingSpace();
+    twoLeft = false;
+  }
+  else
+  {
+    startingSpaceR();
+    twoLeft = true; 
+  }
+    
   level = 2;
+}
+
+void levelThree()
+{
+  sfx_play(3,2);
+  startingSpace();
+  level = 3;
+  
 }
 
 
@@ -239,26 +277,33 @@ void main() {
 
   // loop until game is over
   
-  startingSpace();
+  //load up our level 1 
   levelOne();
   while (game) {
-    
+    // set our minx and maxx values
     MINX = 10;
     MAXX = 220;
-    if (actor_x[0] >= MAXX && level == 1)
+    //if we've reached the right side of the screen transition based on 
+    // what level we are currently at
+    if (actor_x[0] >= MAXX)
       {
-      	sfx_play(3,2);
-      	levelTwo();
-      	startingSpace();
+      	if(level == 1)
+      	  levelTwo();
+        else if (level == 2)
+          levelThree();
+        
         
       }
-      
-      if (actor_x[0] <= MINX && level ==2)
+    // if we've reached the left side of the screen transition based on
+    // what level we are currently at
+     else if (actor_x[0] <= MINX)
       {
-        sfx_play(3,2);
+        if(level == 2)
+          levelOne();
+        else if(level == 3)
+          levelTwo();
         
-      	levelOne();
-        startingSpaceR();
+        
         
       }
     
