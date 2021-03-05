@@ -290,21 +290,30 @@ void main() {
     for (i=0; i<1; i++) {
       byte runseq = actor_x[i] & 7;
       
-      //if (actor_dx[i] == 0)
-      //{
-      //  if(right)
-      //    oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, caceeStandSeq[1]);
-      //  else
-      //    oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, caceeStandSeq[0]);
-     // }
-      if (actor_dx[i] >= 0)
+      
+      
+      //if cacee is not moving
+      if (actor_dx[i] == 0)
+      {
+        // If facing right, draw right standing
+        if(right)
+          oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, caceeStandSeq[1]);
+        // else draw left standing
+        else
+          oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, caceeStandSeq[0]);
+      }
+      // If cacee is moving
+      else{
+        //If Cacee is moving to the right, increase runseq to use R animation
+        if (actor_dx[i] >= 0)
       {
         runseq+=8;
       }
-      
+      //animate running based on runseq and move cacee
       oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, caceeRunSeq[runseq]);
       actor_x[i] += actor_dx[i];
       actor_y[i] += actor_dy[i];
+      }
       
       
       
