@@ -91,12 +91,7 @@ const unsigned char cacee[]={
         8,      8,      TILE+3,   ATTR, 
         128};
 
-const unsigned char ball[]={
-        0,      0,      TILE2+0,   ATTR2, 
-        0,      8,      TILE2+1,   ATTR2, 
-        8,      0,      TILE2+2,   ATTR2, 
-        8,      8,      TILE2+3,   ATTR2, 
-        128};
+
 
 const unsigned char* const caceeRunSeq[16] = {
   caceeLRun1, caceeLRun2, caceeLRun3, 
@@ -106,6 +101,12 @@ const unsigned char* const caceeRunSeq[16] = {
   caceeRRun1, caceeRRun2, caceeRRun3, 
   caceeRRun1, caceeRRun2,
 };
+
+const unsigned char* const caceeStandSeq[2] = {
+  caceeLStand, 
+  caceeRStand, 
+};
+
 
 
 
@@ -148,24 +149,15 @@ byte actor_y[NUM_ACTORS];
 // actor x/y deltas per frame (signed)
 sbyte actor_dx[NUM_ACTORS];
 sbyte actor_dy[NUM_ACTORS];
-
+//min and max X screen values
 int MINX;
 int MAXX;
 
 
-
-
-
-
-
-
-
-
-
-
-
 // game bool value
 bool game = true;
+
+bool right = true; 
 //score value
 int score;
 // lives value
@@ -255,7 +247,7 @@ void main() {
     MAXX = 220;
     if (actor_x[0] >= MAXX && level == 1)
       {
-      	sfx_play(2,2);
+      	sfx_play(3,2);
       	levelTwo();
       	startingSpace();
         
@@ -263,7 +255,7 @@ void main() {
       
       if (actor_x[0] <= MINX && level ==2)
       {
-        sfx_play(2,2);
+        sfx_play(3,2);
         
       	levelOne();
         startingSpaceR();
@@ -277,26 +269,50 @@ void main() {
     oam_id = oam_spr(100, 100, 48+level, level+1, oam_id);
     
     // set player 0/1 velocity based on controller
-    for (i=0; i<2; i++) {
+    for (i=0; i<1; i++) {
       // poll controller i (0-1)
       pad = pad_poll(i);
       // move actor[i] left/right
-      if (pad&PAD_LEFT && actor_x[i]>10) actor_dx[i]=-2;
-      else if (pad&PAD_RIGHT && actor_x[i]<230) actor_dx[i]=2;
+      if (pad&PAD_LEFT && actor_x[i]>10) 
+      {
+        actor_dx[i]=-2;
+        right = false;
+      }
+      else if (pad&PAD_RIGHT && actor_x[i]<230)
+      {
+        actor_dx[i]=2;
+        right = true;
+      }
       else actor_dx[i]=0;
       
     }
     // draw and move cacee
     for (i=0; i<1; i++) {
-      byte runseq = actor_x[i] & 6;
+      byte runseq = actor_x[i] & 7;
+      
+      //if (actor_dx[i] == 0)
+      //{
+      //  if(right)
+      //    oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, caceeStandSeq[1]);
+      //  else
+      //    oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, caceeStandSeq[0]);
+     // }
       if (actor_dx[i] >= 0)
+      {
         runseq+=8;
+      }
       
       oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, caceeRunSeq[runseq]);
       actor_x[i] += actor_dx[i];
       actor_y[i] += actor_dy[i];
+      
+      
+      
+      
     }
-    
+   
+     
+  
     
     
     
