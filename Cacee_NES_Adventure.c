@@ -120,7 +120,7 @@ const char PALETTE[32] = {
   0x06,0x16,0x26,0x00,	// background palette 3
 
   0x2A,0x16,0x27,0x00,	// sprite palette 0
-  0x00,0x37,0x0A,0x00,	// sprite palette 1
+  0x00,0x37,0x2C,0x00,	// sprite palette 1
   0x0D,0x2D,0x27,0x00,	// sprite palette 2
   0x0D,0x26,0x16	// sprite palette 3
 };
@@ -322,7 +322,7 @@ void main() {
      
     // start with OAMid/sprite 0
     oam_id = 0;
-    oam_id = oam_spr(100, 100, 48+level, level+1, oam_id);
+    oam_id = oam_spr(100, 100, 48+level, level, oam_id);
     
     // set player 0/1 velocity based on controller
     for (i=0; i<1; i++) {
