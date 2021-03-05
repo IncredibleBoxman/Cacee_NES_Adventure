@@ -121,8 +121,8 @@ const char PALETTE[32] = {
 
   0x2A,0x16,0x27,0x00,	// sprite palette 0
   0x00,0x37,0x0A,0x00,	// sprite palette 1
-  0x0D,0x2D,0x28,0x00,	// sprite palette 2
-  0x0D,0x27,0x16	// sprite palette 3
+  0x0D,0x2D,0x27,0x00,	// sprite palette 2
+  0x0D,0x26,0x16	// sprite palette 3
 };
 
 
@@ -217,6 +217,7 @@ void levelOne()
     
   
   level = 1;
+  
 }
 // level 2
 void levelTwo()
@@ -225,23 +226,27 @@ void levelTwo()
   sfx_play(3,2);
   if (twoLeft)
   {
-    startingSpace();
     twoLeft = false;
+    startingSpace();
+    
   }
   else
   {
+    twoLeft = true;
     startingSpaceR();
-    twoLeft = true; 
+     
   }
     
   level = 2;
+  
 }
-
+// level 3 
 void levelThree()
 {
   sfx_play(3,2);
   startingSpace();
   level = 3;
+  
   
 }
 
@@ -288,7 +293,10 @@ void main() {
     if (actor_x[0] >= MAXX)
       {
       	if(level == 1)
+        {
+          twoLeft = true;
       	  levelTwo();
+        }
         else if (level == 2)
           levelThree();
         
@@ -301,7 +309,10 @@ void main() {
         if(level == 2)
           levelOne();
         else if(level == 3)
+        {
+          twoLeft = false;
           levelTwo();
+        }
         
         
         
