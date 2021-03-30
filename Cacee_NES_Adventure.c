@@ -149,7 +149,7 @@ void level_one_platforms() {
   oam_id = 0;
   
   platform_one[0]._x = 70;
-  platform_one[0]._y = 190;
+  platform_one[0]._y = 173;
   platform_one[0].sprite = sprite;
   
   
@@ -188,8 +188,7 @@ sbyte actor_dy[NUM_ACTORS];
 //min and max X screen values
 int MINX;
 int MAXX;
-//bool jump
-bool jump = false; 
+
 // game bool value
 bool game = true;
 // if cacee is facing right bool
@@ -218,10 +217,10 @@ int gravity = 2;
 
 //This checks if player has collided with a platform and returns true if so.
 bool platform_collision(){
-  if(((platform_one[0]._x >= actor_x[0]-4 && platform_one[0]._x <= actor_x[0]+8)&& (platform_one[0]._y >= actor_y[0]-2 && platform_one[0]._y <= actor_y[0]+4))) //hits floor or collision detected
+  if(((platform_one[0]._x >= actor_x[0]-4 && platform_one[0]._x <= actor_x[0]+8)&& (platform_one[0]._y >= actor_y[0]-2 && platform_one[0]._y <= actor_y[0]+4))) //collision detected
       {
        
-        return true;     // erase brick that was hit. 
+        return true;      
         
       }
   
@@ -342,6 +341,7 @@ void main() {
     MINX = 10;
     MAXX = 220;
     
+    
     //if we've reached the right side of the screen transition based on 
     // what level we are currently at
     if (actor_x[0] >= MAXX)
@@ -380,7 +380,7 @@ void main() {
      
       
       
-     oam_id = oam_spr(platform_one[0]._x, platform_one[0]._y, platform_one[0].sprite, 0x01, oam_id);
+     oam_id = oam_spr(platform_one[0]._x, platform_one[0]._y+17, platform_one[0].sprite, 0x01, oam_id);
      // oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y, platform_one[i].sprite, 0x00, oam_id);
    //  
     
@@ -410,7 +410,7 @@ void main() {
       { 
         
         actor_dy[0]=-gravity;
-        jump = true;
+        
       }
       
     
@@ -425,7 +425,7 @@ void main() {
       // set ground back to default
       ground = 200;
       
-    //fall if we are above ground
+    //fall if we are above ground      
       
     }
     if (actor_y[0] < ground-jumpHeight)
@@ -433,10 +433,7 @@ void main() {
       
       actor_dy[0] = gravity; 
     }
-    //if (actor_y[0] == ground - jumpHeight)
-      //{
-        //actor_dy[0] = gravity;
-      //}
+    
     
     // draw and move cacee
     for (i=0; i<1; i++) {
