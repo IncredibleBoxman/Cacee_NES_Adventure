@@ -197,6 +197,8 @@ bool right = true;
 bool first = true;
 
 bool twoLeft = true;
+
+bool jump = false;
 //score value
 int score;
 // lives value
@@ -210,7 +212,8 @@ char i;	// actor index
 char oam_id;	// sprite ID
 char pad;// controller flags
 
-int ground = 200; 
+int ground= 200;
+int def_ground = 200; 
 int jumpHeight = 40;
 int gravity = 2;
 
@@ -408,8 +411,9 @@ void main() {
        
       if (pad & PAD_A &&  actor_y[0] == ground)			//Prototype jumping
       { 
-        
+        jump = true; 
         actor_dy[0]=-gravity;
+       
         
       }
       
@@ -418,21 +422,32 @@ void main() {
     if (platform_collision())
     {
       // set ground to platform height - 17
+      if (!jump)
+      {
       ground = 173;
+      }
+      
     }
-    else
+    // if we are not on top of the platform, and our actor is higher than default ground, and our actor 
+    else if ((!platform_collision() && actor_y[0] < def_ground && actor_y[0] < ground-jumpHeight) || (actor_x[0]-4 > platform_one[0]._x) || (actor_x[0]+4 < platform_one[0]._x) )
     {
       // set ground back to default
-      ground = 200;
-      
-    //fall if we are above ground      
-      
+      if (!jump)
+      {
+        
+      ground = def_ground;
+      }
+
     }
+   
+    
+    //fall if we are above ground 
     if (actor_y[0] < ground-jumpHeight)
     {
-      
+      jump = false; 
       actor_dy[0] = gravity; 
     }
+   
     
     
     // draw and move cacee
