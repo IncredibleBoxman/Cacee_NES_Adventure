@@ -126,6 +126,42 @@ const char PALETTE[32] = {
 };
 
 
+byte sprite = 0x02;
+
+
+
+byte sprite_y1 = 100;
+
+byte sprite_y2 = 108;
+//platform struct
+typedef struct Platform{
+  byte _x;		// platforms x/y positions
+  byte _y;		
+  byte sprite; 
+  
+};
+
+struct Platform platform_one[20];
+//This is our starting bricks, what the starting area looks like. 
+void level_one_platforms() {
+  char oam_id;
+  
+  oam_id = 0;
+  
+  platform_one[0]._x = 70;
+  platform_one[0]._y = 190;
+  platform_one[0].sprite = sprite;
+  
+  
+
+ 
+    
+  
+}
+
+
+
+
 
 // setup PPU and tables
 void setup_graphics() {
@@ -152,8 +188,8 @@ sbyte actor_dy[NUM_ACTORS];
 //min and max X screen values
 int MINX;
 int MAXX;
-
-
+//bool jump
+bool jump = false; 
 // game bool value
 bool game = true;
 // if cacee is facing right bool
@@ -175,7 +211,21 @@ char i;	// actor index
 char oam_id;	// sprite ID
 char pad;// controller flags
 
+int ground = 200; 
+int jumpHeight = 40;
+int gravity = 2;
 
+
+//This checks if player has collided with a platform and returns true if so.
+bool platform_collision(){
+  if(((platform_one[0]._x >= actor_x[0]-4 && platform_one[0]._x <= actor_x[0]+8)&& (platform_one[0]._y >= actor_y[0]-2 && platform_one[0]._y <= actor_y[0]+4))) //hits floor or collision detected
+      {
+       
+        return true;     // erase brick that was hit. 
+        
+      }
+  
+}
 
 
 
@@ -200,6 +250,7 @@ void startingSpaceR()
 }
 void levelOne()
 {
+  level_one_platforms();
   //check if its our first load into game
   if(first)
   {
@@ -258,7 +309,7 @@ void levelThree()
 // main program
 
 void main() {
-  
+ char pad2;  
   
  
   //score = 0;
@@ -283,11 +334,14 @@ void main() {
   // loop until game is over
   
   //load up our level 1 
+  
   levelOne();
+  
   while (game) {
     // set our minx and maxx values
     MINX = 10;
     MAXX = 220;
+    
     //if we've reached the right side of the screen transition based on 
     // what level we are currently at
     if (actor_x[0] >= MAXX)
@@ -322,26 +376,68 @@ void main() {
      
     // start with OAMid/sprite 0
     oam_id = 0;
+    
+     
+      
+      
+     oam_id = oam_spr(platform_one[0]._x, platform_one[0]._y, platform_one[0].sprite, 0x01, oam_id);
+     // oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y, platform_one[i].sprite, 0x00, oam_id);
+   //  
+    
     oam_id = oam_spr(100, 100, 48+level, level, oam_id);
     
-    // set player 0/1 velocity based on controller
-    for (i=0; i<1; i++) {
-      // poll controller i (0-1)
-      pad = pad_poll(i);
+    
+    // 1 player controller setup. 
+      pad = pad_poll(0);
+      pad2 = pad_trigger(0);
       // move actor[i] left/right
-      if (pad&PAD_LEFT && actor_x[i]>10) 
+      if (pad&PAD_LEFT && actor_x[0]>10) 
       {
-        actor_dx[i]=-2;
+        actor_dx[0]=-2;
         right = false;
       }
-      else if (pad&PAD_RIGHT && actor_x[i]<230)
+      else if (pad&PAD_RIGHT && actor_x[0]<230)
       {
-        actor_dx[i]=2;
+        actor_dx[0]=2;
         right = true;
       }
-      else actor_dx[i]=0;
+      
+      else actor_dx[0]=0;
+      
+      //Make Cacee Jump
+       
+      if (pad & PAD_A &&  actor_y[0] == ground)			//Prototype jumping
+      { 
+        
+        actor_dy[0]=-gravity;
+        jump = true;
+      }
+      
+    
+    // if we have are on top of the platform
+    if (platform_collision())
+    {
+      // set ground to platform height - 17
+      ground = 173;
+    }
+    else
+    {
+      // set ground back to default
+      ground = 200;
+      
+    //fall if we are above ground
       
     }
+    if (actor_y[0] < ground-jumpHeight)
+    {
+      
+      actor_dy[0] = gravity; 
+    }
+    //if (actor_y[0] == ground - jumpHeight)
+      //{
+        //actor_dy[0] = gravity;
+      //}
+    
     // draw and move cacee
     for (i=0; i<1; i++) {
       byte runseq = actor_x[i] & 7;
@@ -369,7 +465,15 @@ void main() {
       oam_id = oam_meta_spr(actor_x[i], actor_y[i], oam_id, caceeRunSeq[runseq]);
       actor_x[i] += actor_dx[i];
       actor_y[i] += actor_dy[i];
+      
       }
+      if(actor_y[i] <= ground)
+      {
+      actor_y[i] += actor_dy[i];
+      }
+      //Set actor back on Plane after jumping if he falls too far
+      if(actor_y[i] >= ground)
+        actor_y[i] = ground;
       
       
       
