@@ -437,6 +437,7 @@ void levelThree()
   clear_platforms();
   clear_thwomp();
   level_three_platforms();
+  create_thwomp(180, 95);
   sfx_play(3,2);
   startingSpace();
   level = 3;
@@ -493,14 +494,18 @@ void main() {
     // what level we are currently at
     if (actor_x[0] >= MAXX)
       {
-      levelChange = true;
+      
       	if(level == 1)
         {
+          levelChange = true;
           twoLeft = true;
       	  levelTwo();
         }
         else if (level == 2)
+        {
+          levelChange = true;
           levelThree();
+        }
         
         
       }
@@ -508,11 +513,15 @@ void main() {
     // what level we are currently at
      else if (actor_x[0] <= MINX)
       {
-       levelChange = true;
+       
         if(level == 2)
+        {
+          levelChange = true;
           levelOne();
+        }
         else if(level == 3)
         {
+          levelChange = true;
           twoLeft = false;
           levelTwo();
         }
@@ -536,13 +545,14 @@ void main() {
       // add 17 to y in order for us to stand on top of platform
         oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
         oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
-        oam_id = oam_meta_spr(thwomp_x, thwomp_y, oam_id, thwompRStand);
+        
+      }
+      oam_id = oam_meta_spr(thwomp_x, thwomp_y, oam_id, thwompRStand);
         if (starOne)
         {
           
           oam_id = oam_spr(starOne_x, starOne_y, 0x18, 2, oam_id);
         }
-      }
     }
     
     if(level == 2)
@@ -552,13 +562,15 @@ void main() {
       // add 17 to y in order for us to stand on top of platform
         oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
         oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
-        oam_id = oam_meta_spr(thwomp_x, thwomp_y, oam_id, thwompRStand);
-        if (starTwo)
+        
+        
+        
+      }
+      oam_id = oam_meta_spr(thwomp_x, thwomp_y, oam_id, thwompRStand);
+      if (starTwo)
         {
           oam_id = oam_spr(starTwo_x, starTwo_y, 0x18, 2, oam_id);
         }
-        
-      }
     }
     
     if(level == 3)
@@ -568,13 +580,15 @@ void main() {
       // add 17 to y in order for us to stand on top of platform
         oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
         oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
+        
+      }
+      oam_id = oam_meta_spr(thwomp_x, thwomp_y, oam_id, thwompRStand);
         //check if we've grabbed the star yet
         if (starThree)
         {
           oam_id = oam_spr(165, 105, 0x18, 2, oam_id);
           oam_id = oam_spr(starThree_x, starThree_y, 0x18, 2, oam_id);
         }
-      }
     }
      // oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y, platform_one[i].sprite, 0x00, oam_id);
    //  
@@ -731,23 +745,23 @@ void main() {
       
    
     //Draws and updates Scoreboard
-    oam_id = oam_spr(184, 10, 83, 2, oam_id);
-    oam_id = oam_spr(192, 10, 67, 2, oam_id);
-    oam_id = oam_spr(200, 10, 79, 2, oam_id);
-    oam_id = oam_spr(208, 10, 82, 2, oam_id);
-    oam_id = oam_spr(216, 10, 69, 2, oam_id);
-    oam_id = oam_spr(224, 10, 58, 2, oam_id);
-    oam_id = oam_spr(232, 10, (score/10%10)+48, 2, oam_id);
-    oam_id = oam_spr(240, 10, (score%10)+48, 2, oam_id);
+    //oam_id = oam_spr(184, 10, 83, 2, oam_id);
+   // oam_id = oam_spr(192, 10, 67, 2, oam_id);
+   // oam_id = oam_spr(200, 10, 79, 2, oam_id);
+   // oam_id = oam_spr(208, 10, 82, 2, oam_id);
+   // oam_id = oam_spr(216, 10, 69, 2, oam_id);
+   // oam_id = oam_spr(224, 10, 58, 2, oam_id);
+   // oam_id = oam_spr(232, 10, (score/10%10)+48, 2, oam_id);
+  //  oam_id = oam_spr(240, 10, (score%10)+48, 2, oam_id);
     
     //Draws and updates Lives
-    oam_id = oam_spr(8, 10, 76, 1, oam_id);
-    oam_id = oam_spr(16, 10, 73, 1, oam_id);
-    oam_id = oam_spr(24, 10, 86, 1, oam_id);
-    oam_id = oam_spr(32, 10, 69, 1, oam_id);
-    oam_id = oam_spr(40, 10, 83, 1, oam_id);
-    oam_id = oam_spr(48, 10, 58, 1, oam_id);
-    oam_id = oam_spr(56, 10, (lives%10)+48, 1, oam_id);
+   // oam_id = oam_spr(8, 10, 76, 1, oam_id);
+   // oam_id = oam_spr(16, 10, 73, 1, oam_id);
+   // oam_id = oam_spr(24, 10, 86, 1, oam_id);
+   // oam_id = oam_spr(32, 10, 69, 1, oam_id);
+   // oam_id = oam_spr(40, 10, 83, 1, oam_id);
+  //  oam_id = oam_spr(48, 10, 58, 1, oam_id);
+  //  oam_id = oam_spr(56, 10, (lives%10)+48, 1, oam_id);
     
     // hide rest of sprites
     // if we haven't wrapped oam_id around to 0
