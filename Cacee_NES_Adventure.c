@@ -322,8 +322,10 @@ void show_screen(const byte* pal, const byte* rle) {
 }
 void title()
 {
+  
   bool bool1 = true;
   char pad;
+  
   setup_graphics();
   ppu_off();
   show_screen(Title_Screen_pal, Title_Screen_rle);
@@ -721,7 +723,8 @@ void main() {
 
   // setup graphics
   setup_graphics();
-  title();
+  
+  
 
   //PLAY MUSIC 
   famitone_init(after_the_rain_music_data);
@@ -730,7 +733,9 @@ void main() {
    // set music callback function for NMI
   nmi_set_callback(famitone_update);
   // play music
-  //music_play(0);
+  music_play(0);
+  
+  title();
 
   // loop until game is over
   
@@ -1031,39 +1036,25 @@ void main() {
       
       
     }
-   
-     
-  
-    
-    
-    
-    
-   
-      
-          
-      
-      
-      
-      
-   
+
     //Draws and updates Scoreboard
-    oam_id = oam_spr(184, 10, 83, 2, oam_id);
-    oam_id = oam_spr(192, 10, 67, 2, oam_id);
-    oam_id = oam_spr(200, 10, 79, 2, oam_id);
-    oam_id = oam_spr(208, 10, 82, 2, oam_id);
-    oam_id = oam_spr(216, 10, 69, 2, oam_id);
-    oam_id = oam_spr(224, 10, 58, 2, oam_id);
-    oam_id = oam_spr(232, 10, (score/10%10)+48, 2, oam_id);
-    oam_id = oam_spr(240, 10, (score%10)+48, 2, oam_id);
+    oam_id = oam_spr(176, 10, 83, 2, oam_id);
+    oam_id = oam_spr(184, 10, 67, 2, oam_id);
+    oam_id = oam_spr(192, 10, 79, 2, oam_id);
+    oam_id = oam_spr(200, 10, 82, 2, oam_id);
+    oam_id = oam_spr(208, 10, 69, 2, oam_id);
+    oam_id = oam_spr(216, 10, 58, 2, oam_id);
+    oam_id = oam_spr(224, 10, (score/10%10)+48, 2, oam_id);
+    oam_id = oam_spr(232, 10, (score%10)+48, 2, oam_id);
     
     //Draws and updates Lives
-    oam_id = oam_spr(8, 10, 76, 1, oam_id);
-    oam_id = oam_spr(16, 10, 73, 1, oam_id);
-    oam_id = oam_spr(24, 10, 86, 1, oam_id);
-    oam_id = oam_spr(32, 10, 69, 1, oam_id);
-    oam_id = oam_spr(40, 10, 83, 1, oam_id);
-    oam_id = oam_spr(48, 10, 58, 1, oam_id);
-    oam_id = oam_spr(56, 10, (lives%10)+48, 1, oam_id);
+    oam_id = oam_spr(16, 10, 76, 1, oam_id);
+    oam_id = oam_spr(24, 10, 73, 1, oam_id);
+    oam_id = oam_spr(32, 10, 86, 1, oam_id);
+    oam_id = oam_spr(40, 10, 69, 1, oam_id);
+    oam_id = oam_spr(48, 10, 83, 1, oam_id);
+    oam_id = oam_spr(56, 10, 58, 1, oam_id);
+    oam_id = oam_spr(64, 10, (lives%10)+48, 1, oam_id);
     
     // hide rest of sprites
     // if we haven't wrapped oam_id around to 0
