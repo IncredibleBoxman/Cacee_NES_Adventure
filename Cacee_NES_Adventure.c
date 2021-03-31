@@ -241,9 +241,17 @@ typedef struct Platform{
   byte sprite; 
   
 };
-//fill our struct with 20 to use
+//fill our struct with 10 to use
 struct Platform platform_one[10];
- 
+
+typedef struct Thwomps{
+  byte _x;		// platforms x/y positions
+  byte _y;		
+  byte meta_sprite; 
+  
+};
+
+struct Thwomps thwomp[10];
 
 //
 void create_platforms(byte x, byte y, byte z)
@@ -338,8 +346,8 @@ void platform_collision(){
   
 }
 
-bool thwomp_see(byte x){
-  if (thwomp_x == x)
+bool thwomp_see(byte x, byte y){
+  if (thwomp_x == x && thwomp_y < y)
   {
     return true;
   }
@@ -870,7 +878,7 @@ void main() {
         actor_y[i] = ground;
       
        
-      if (thwomp_see(actor_x[i]))
+      if (thwomp_see(actor_x[i], actor_y[i]))
       {
         thwomp_dy = gravity +2; 
         oam_id = oam_meta_spr(thwomp_x, thwomp_y, oam_id, thwompRStand);
