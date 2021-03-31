@@ -37,6 +37,12 @@ extern const byte Test_Screen2_rle[];
 
 extern const byte Test_Screen3_pal[16];
 extern const byte Test_Screen3_rle[];
+
+extern const byte Game_Over_Screen_pal[16];
+extern const byte Game_Over_Screen_rle[];
+
+extern const byte Win_Screen_pal[16];
+extern const byte Win_Screen_rle[];
 // link the pattern table into CHR ROM
 
 
@@ -54,6 +60,13 @@ extern const byte Test_Screen3_rle[];
 
 
 //#link "Test_Screen3.s"
+
+
+//#link "Game_Over_Screen.s"
+
+//#link "Win_Screen.s"
+
+
 
 
 
@@ -627,11 +640,7 @@ void game_over()
   music_stop();
   setup_graphics();
   ppu_off();
-  vram_adr(NTADR_A(10,15));
-  vram_write("GAME OVER", 9);
-  
-  vram_adr(NTADR_A(3,20));
-  vram_write("PRESS START TO PLAY AGAIN!", 26);
+  show_screen(Game_Over_Screen_pal, Game_Over_Screen_rle);
   ppu_on_all();
 
  
@@ -640,8 +649,7 @@ void game_over()
     pad = pad_trigger(0);
     if (pad & PAD_START) 
     {
-      //go back to our starting bricks set game_over to false and play music again
-      // delete game over message
+      
       ppu_off();
       
       vram_adr(NAMETABLE_A);
@@ -650,7 +658,7 @@ void game_over()
       
       game_over = false;
      
-      //music_play(0); 
+      music_play(0); 
       ppu_on_all();
       
     }
@@ -671,22 +679,14 @@ void winner()
   music_stop();
   setup_graphics();
   ppu_off();
-  
-  // display win message
-  vram_adr(NTADR_A(10,15));
-  vram_write("YOU WIN!", 9);
-  
-  vram_adr(NTADR_A(3,20));
-  vram_write("PRESS START TO PLAY AGAIN!", 26);
-  ppu_on_all();
+  show_screen(Win_Screen_pal, Win_Screen_rle);
   //while we are on this screen check if player hit start
   while(game_over) 
   { 
     pad = pad_trigger(0);
     if (pad & PAD_START) 
     {
-      //go back to our starting bricks set game_over to false and play music again
-      // delete game over message
+      
       ppu_off();
       vram_adr(NAMETABLE_A);
       vram_fill(0,1024);
@@ -695,7 +695,7 @@ void winner()
       
       game_over = false;
      
-      //music_play(0); 
+      music_play(0); 
       ppu_on_all();
       
     }
