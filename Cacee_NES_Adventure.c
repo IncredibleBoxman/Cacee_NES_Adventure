@@ -28,6 +28,15 @@
 
 extern const byte Title_Screen_pal[16];
 extern const byte Title_Screen_rle[];
+
+extern const byte Test_Screen_pal[16];
+extern const byte Test_Screen_rle[];
+
+extern const byte Test_Screen2_pal[16];
+extern const byte Test_Screen2_rle[];
+
+extern const byte Test_Screen3_pal[16];
+extern const byte Test_Screen3_rle[];
 // link the pattern table into CHR ROM
 
 
@@ -38,6 +47,18 @@ extern const byte Title_Screen_rle[];
 //#link "chr_generic.s"
 
 //#link "Title_Screen.s"
+
+//#link "Test_Screen.s"
+
+//#link "Test_Screen2.s"
+
+
+//#link "Test_Screen3.s"
+
+
+
+
+
 
 
 //#link "famitone2.s"
@@ -193,14 +214,14 @@ sbyte def_thwomp_y;
 byte powerup_x;
 byte powerup_y; 
 
-byte starOne_x = 141;
+byte starOne_x = 145;
 byte starOne_y = 120;
 
-byte starTwo_x = 76;
+byte starTwo_x = 80;
 byte starTwo_y = 120;
 
-byte starThree_x = 161;
-byte starThree_y = 100;
+byte starThree_x = 160;
+byte starThree_y = 105;
 //min and max X screen values
 byte MINX;
 byte MAXX;
@@ -264,6 +285,65 @@ typedef struct Thwomps{
 
 struct Thwomps thwomp[10];
 
+void setup_graphics() {
+  // clear sprites
+  oam_hide_rest(0);
+  // set palette colors
+  pal_all(PALETTE);
+  // turn on PPU
+  ppu_on_all();
+}
+
+void fade_in() {
+  byte vb;
+  for (vb=0; vb<=4; vb++) {
+    // set virtual bright value
+    pal_bright(vb);
+    // wait for 4/60 sec
+    //ppu_wait_frame();
+   // ppu_wait_frame();
+   // ppu_wait_frame();
+    //-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ppu_wait_frame();
+  }
+}
+void show_screen(const byte* pal, const byte* rle) {
+  // disable rendering
+  ppu_off();
+  // set palette, virtual bright to 0 (total black)
+  pal_bg(pal);
+  pal_bright(0);
+  // unpack nametable into the VRAM
+  vram_adr(0x2000);
+  vram_unrle(rle);
+  // enable rendering
+  ppu_on_all();
+  // fade in from black
+  fade_in();
+}
+void title()
+{
+  bool bool1 = true;
+  char pad;
+  setup_graphics();
+  ppu_off();
+  show_screen(Title_Screen_pal, Title_Screen_rle);
+  
+  // Loop until user hits Start, then enters game state. 
+ 
+  while (bool1) {
+    pad = pad_trigger(0);
+    if (pad & PAD_START) 
+    {
+      
+      ppu_off();
+      vram_adr(NAMETABLE_A);
+      vram_fill(0,1024);
+      bool1 = false; 
+      ppu_on_all();
+    }
+  }
+}
+
 //
 void create_platforms(byte x, byte y, byte z)
 {
@@ -276,19 +356,20 @@ void create_platforms(byte x, byte y, byte z)
   platform_one[z+1].sprite = sprite;
 }
 
-void clear_platforms()
-{
-  for (num = 0; num<= 20; num++)
-  {
-    platform_one[num]._x = NULL;
-    platform_one[num]._y = NULL;
-    platform_one[num].sprite = NULL; 
-  }
-}
+//used to clear platforms unneeded with RLE
+//void clear_platforms()
+//{
+  //for (num = 0; num<= 20; num++)
+ // {
+  //  platform_one[num]._x = NULL;
+ //   platform_one[num]._y = NULL;
+ //   platform_one[num].sprite = NULL; 
+ // }
+//}
 
 //this is our starting level platforms
 void level_one_platforms() {
-  create_platforms(70, 173, 0);
+  create_platforms(70, 175, 0);
   
   create_platforms(105, 145, 2);
   
@@ -303,23 +384,23 @@ void level_one_platforms() {
 }
 
 void level_two_platforms() {
-  create_platforms(90, 173, 0);
+  create_platforms(90, 175, 0);
   
   create_platforms(125, 145, 2);
   
-  create_platforms(75, 120, 4); 
+  create_platforms(80, 120, 4); 
 }
 
 void level_three_platforms() {
-  create_platforms(90, 173, 0);
+  create_platforms(85, 175, 0);
   
-  create_platforms(55, 145, 2);
+  create_platforms(55, 150, 2);
   
-  create_platforms(85, 115, 4); 
+  create_platforms(85, 120, 4); 
   
-  create_platforms(100, 85, 6);
+  create_platforms(100, 90, 6);
   
-  create_platforms(160, 100, 8);
+  create_platforms(160, 105, 8);
   
   
 }
@@ -330,14 +411,7 @@ void level_three_platforms() {
 
 
 // setup PPU and tables
-void setup_graphics() {
-  // clear sprites
-  oam_hide_rest(0);
-  // set palette colors
-  pal_all(PALETTE);
-  // turn on PPU
-  ppu_on_all();
-}
+
 
 
 //This checks if player has collided with a platform and returns true if so.
@@ -410,7 +484,7 @@ void startingSpace()
 
 void startingSpaceR()
 {
-  actor_x[0] = 220;
+  actor_x[0] = 215;
   actor_y[0] = 200;
   actor_dx[0] = 0;
   actor_dy[0] = 0;
@@ -443,10 +517,11 @@ void clear_powerup()
 void levelOne()
 {
   ppu_off();
-  clear_platforms();
+  //clear_platforms();
   clear_thwomp();
   clear_powerup();
   setup_graphics();
+  show_screen(Test_Screen_pal, Test_Screen_rle);
   level_one_platforms();
   create_thwomp(190, 95);
   if(starOne)
@@ -477,9 +552,10 @@ void levelOne()
 void levelTwo()
 {
   ppu_off();
-  clear_platforms();
+  //clear_platforms();
   clear_thwomp();
   setup_graphics();
+  show_screen(Test_Screen2_pal, Test_Screen2_rle);
   level_two_platforms();
   
   create_thwomp(100, 43);
@@ -508,9 +584,10 @@ void levelTwo()
 void levelThree()
 {
   ppu_off();
-  clear_platforms();
+  //clear_platforms();
   clear_thwomp();
   setup_graphics();
+  show_screen(Test_Screen3_pal, Test_Screen3_rle);
   level_three_platforms();
   create_thwomp(130, 120);
   if(starThree)
@@ -536,6 +613,7 @@ void game_reset()
   levelOne();
   lives = 3;
   score = 0;
+  ground = def_ground;
 }
 
 void game_over()
@@ -623,55 +701,7 @@ void winner()
   setup_graphics();
   game_reset();
 }
-void fade_in() {
-  byte vb;
-  for (vb=0; vb<=4; vb++) {
-    // set virtual bright value
-    pal_bright(vb);
-    // wait for 4/60 sec
-    ppu_wait_frame();
-    ppu_wait_frame();
-    ppu_wait_frame();
-    ppu_wait_frame();
-  }
-}
-void show_screen(const byte* pal, const byte* rle) {
-  // disable rendering
-  ppu_off();
-  // set palette, virtual bright to 0 (total black)
-  pal_bg(pal);
-  pal_bright(0);
-  // unpack nametable into the VRAM
-  vram_adr(0x2000);
-  vram_unrle(rle);
-  // enable rendering
-  ppu_on_all();
-  // fade in from black
-  fade_in();
-}
-void title()
-{
-  bool bool1 = true;
-  char pad;
-  setup_graphics();
-  ppu_off();
-  show_screen(Title_Screen_pal, Title_Screen_rle);
-  
-  // Loop until user hits Start, then enters game state. 
- 
-  while (bool1) {
-    pad = pad_trigger(0);
-    if (pad & PAD_START) 
-    {
-      
-      ppu_off();
-      vram_adr(NAMETABLE_A);
-      vram_fill(0,1024);
-      bool1 = false; 
-      ppu_on_all();
-    }
-  }
-}
+
 
 	
 
@@ -770,8 +800,8 @@ void main() {
       for (i = 0; i<= 5; i++)
       {
       // add 17 to y in order for us to stand on top of platform
-        oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
-        oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
+       // oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
+      //  oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
         
       }
       oam_id = oam_meta_spr(thwomp_x, thwomp_y, oam_id, thwompRStand);
@@ -791,8 +821,8 @@ void main() {
       for (i = 0; i<= 5; i++)
       {
       // add 17 to y in order for us to stand on top of platform
-        oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
-        oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
+        //oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
+        //oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
         
         
         
@@ -815,8 +845,8 @@ void main() {
       for (i = 0; i<= 9; i++)
       {
       // add 17 to y in order for us to stand on top of platform
-        oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
-        oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
+       //oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
+        //oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
         
       }
       oam_id = oam_meta_spr(thwomp_x, thwomp_y, oam_id, thwompRStand);
