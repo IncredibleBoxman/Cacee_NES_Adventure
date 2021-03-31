@@ -26,8 +26,19 @@
 //#link "vrambuf.c"
 
 
+extern const byte Title_Screen_pal[16];
+extern const byte Title_Screen_rle[];
 // link the pattern table into CHR ROM
+
+
+
+
+
+
 //#link "chr_generic.s"
+
+//#link "Title_Screen.s"
+
 
 //#link "famitone2.s"
 
@@ -612,6 +623,55 @@ void winner()
   setup_graphics();
   game_reset();
 }
+void fade_in() {
+  byte vb;
+  for (vb=0; vb<=4; vb++) {
+    // set virtual bright value
+    pal_bright(vb);
+    // wait for 4/60 sec
+    ppu_wait_frame();
+    ppu_wait_frame();
+    ppu_wait_frame();
+    ppu_wait_frame();
+  }
+}
+void show_screen(const byte* pal, const byte* rle) {
+  // disable rendering
+  ppu_off();
+  // set palette, virtual bright to 0 (total black)
+  pal_bg(pal);
+  pal_bright(0);
+  // unpack nametable into the VRAM
+  vram_adr(0x2000);
+  vram_unrle(rle);
+  // enable rendering
+  ppu_on_all();
+  // fade in from black
+  fade_in();
+}
+void title()
+{
+  bool bool1 = true;
+  char pad;
+  setup_graphics();
+  ppu_off();
+  show_screen(Title_Screen_pal, Title_Screen_rle);
+  
+  // Loop until user hits Start, then enters game state. 
+ 
+  while (bool1) {
+    pad = pad_trigger(0);
+    if (pad & PAD_START) 
+    {
+      
+      ppu_off();
+      vram_adr(NAMETABLE_A);
+      vram_fill(0,1024);
+      bool1 = false; 
+      ppu_on_all();
+    }
+  }
+}
 
 	
 
@@ -631,6 +691,7 @@ void main() {
 
   // setup graphics
   setup_graphics();
+  title();
 
   //PLAY MUSIC 
   famitone_init(after_the_rain_music_data);
