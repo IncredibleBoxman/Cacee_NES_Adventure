@@ -356,16 +356,16 @@ void create_platforms(byte x, byte y, byte z)
   platform_one[z+1].sprite = sprite;
 }
 
-//used to clear platforms unneeded with RLE
-//void clear_platforms()
-//{
-  //for (num = 0; num<= 20; num++)
- // {
-  //  platform_one[num]._x = NULL;
- //   platform_one[num]._y = NULL;
- //   platform_one[num].sprite = NULL; 
- // }
-//}
+
+void clear_platforms()
+{
+  for (num = 0; num<= 20; num++)
+ {
+    platform_one[num]._x = NULL;
+    platform_one[num]._y = NULL;
+    platform_one[num].sprite = NULL; 
+  }
+}
 
 //this is our starting level platforms
 void level_one_platforms() {
@@ -484,7 +484,7 @@ void startingSpace()
 
 void startingSpaceR()
 {
-  actor_x[0] = 215;
+  actor_x[0] = 220;
   actor_y[0] = 200;
   actor_dx[0] = 0;
   actor_dy[0] = 0;
@@ -517,7 +517,7 @@ void clear_powerup()
 void levelOne()
 {
   ppu_off();
-  //clear_platforms();
+  clear_platforms();
   clear_thwomp();
   clear_powerup();
   setup_graphics();
@@ -552,7 +552,7 @@ void levelOne()
 void levelTwo()
 {
   ppu_off();
-  //clear_platforms();
+  clear_platforms();
   clear_thwomp();
   setup_graphics();
   show_screen(Test_Screen2_pal, Test_Screen2_rle);
@@ -584,7 +584,7 @@ void levelTwo()
 void levelThree()
 {
   ppu_off();
-  //clear_platforms();
+  clear_platforms();
   clear_thwomp();
   setup_graphics();
   show_screen(Test_Screen3_pal, Test_Screen3_rle);
@@ -742,7 +742,7 @@ void main() {
     levelChange = false;
     // set our minx and maxx values
     MINX = 10;
-    MAXX = 220;
+    MAXX = 225;
     // start with OAMid/sprite 0
     oam_id = 0;
     
