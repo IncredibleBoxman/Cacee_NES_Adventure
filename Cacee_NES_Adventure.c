@@ -185,11 +185,11 @@ byte powerup_y;
 byte starOne_x = 141;
 byte starOne_y = 120;
 
-byte starTwo_x = 80;
-byte starTwo_y = 125;
+byte starTwo_x = 76;
+byte starTwo_y = 120;
 
-byte starThree_x = 165;
-byte starThree_y = 105;
+byte starThree_x = 161;
+byte starThree_y = 100;
 //min and max X screen values
 byte MINX;
 byte MAXX;
@@ -348,15 +348,17 @@ bool thwomp_see(byte x){
 bool thwomp_collision()
 {
   if(((thwomp_x >= actor_x[0]-4 && thwomp_x <= actor_x[0]+8)&& (thwomp_y >= actor_y[0]-2 && thwomp_y <= actor_y[0]+4))) //collision detected
-      {
-        return true;      
-      }
+  {
+    sfx_play(1,2);
+    return true;      
+  }
 }
 
 bool powerup_collision()
 {
   if(((powerup_x >= actor_x[0]-4 && powerup_x <= actor_x[0]+8)&& (powerup_y >= actor_y[0]-2 && powerup_y <= actor_y[0]+4))) //collision detected
   {
+    sfx_play(2,2);
     score+= 1; 
     return true;      
   }
@@ -420,7 +422,10 @@ void levelOne()
   clear_powerup();
   level_one_platforms();
   create_thwomp(190, 95);
-  create_powerup(starOne_x, starOne_y);
+  if(starOne)
+  {
+    create_powerup(starOne_x, starOne_y);
+  }
   
   //check if its our first load into game
   if(first)
@@ -448,6 +453,10 @@ void levelTwo()
   clear_thwomp();
   level_two_platforms();
   create_thwomp(150, 43);
+  if(starTwo)
+  {
+    create_powerup(starTwo_x, starTwo_y);
+  }
   sfx_play(3,2);
   if (twoLeft)
   {
@@ -472,6 +481,10 @@ void levelThree()
   clear_thwomp();
   level_three_platforms();
   create_thwomp(180, 95);
+  if(starThree)
+  {
+    create_powerup(starThree_x, starThree_y);
+  }
   sfx_play(3,2);
   startingSpace();
   level = 3;
@@ -582,11 +595,15 @@ void main() {
         
       }
       oam_id = oam_meta_spr(thwomp_x, thwomp_y, oam_id, thwompRStand);
-        if (starOne)
-        {
-          oam_id = oam_meta_spr(powerup_x, powerup_y, oam_id, powerupRStand);
-          
-        }
+      if (powerup_collision())
+      {
+        starOne = false;
+        clear_powerup();
+      }
+      if (starOne)
+      {
+        oam_id = oam_meta_spr(powerup_x, powerup_y, oam_id, powerupRStand);
+      }
     }
     
     if(level == 2)
@@ -601,9 +618,15 @@ void main() {
         
       }
       oam_id = oam_meta_spr(thwomp_x, thwomp_y, oam_id, thwompRStand);
+      
+      if (powerup_collision())
+      {
+        starTwo = false;
+        clear_powerup();
+      }
       if (starTwo)
         {
-          oam_id = oam_spr(starTwo_x, starTwo_y, 0x18, 2, oam_id);
+          oam_id = oam_meta_spr(powerup_x, powerup_y, oam_id, powerupRStand);
         }
     }
     
@@ -618,10 +641,16 @@ void main() {
       }
       oam_id = oam_meta_spr(thwomp_x, thwomp_y, oam_id, thwompRStand);
         //check if we've grabbed the star yet
+      
+      if (powerup_collision())
+      {
+        starThree = false;
+        clear_powerup();
+      }
         if (starThree)
         {
-          oam_id = oam_spr(165, 105, 0x18, 2, oam_id);
-          oam_id = oam_spr(starThree_x, starThree_y, 0x18, 2, oam_id);
+          
+          oam_id = oam_meta_spr(powerup_x, powerup_y, oam_id, powerupRStand);
         }
     }
      // oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y, platform_one[i].sprite, 0x00, oam_id);
@@ -737,7 +766,11 @@ void main() {
       // if thwomp has hit the ground, start rising again.
       
       if( thwomp_y >= def_ground)
+      {
+        sfx_play(1,2);
+        thwomp_y = def_ground;
         thwomp_dy = -1; 
+      }
       // if thwomp has reached its default height then stop rising
       if(thwomp_y == def_thwomp_y)
         thwomp_dy = 0;
@@ -761,7 +794,7 @@ void main() {
         iFrames -= 1; 
       }
       
-      powerup_collision();
+      
       
       
       
