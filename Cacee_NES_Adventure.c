@@ -75,6 +75,13 @@ const unsigned char name[]={\
         8,      8,      (code)+3,   pal, \
         128};
 
+#define powerup(name,code,pal)\
+const unsigned char name[]={\
+        0,      0,      (code)+0,   pal, \
+        0,      8,      (code)+1,   pal, \
+        8,      0,      (code)+2,   pal, \
+        8,      8,      (code)+3,   pal, \
+        128};
 cacee(caceeRStand, 0xd8, 0);
 cacee(caceeRRun1, 0xdc, 0);
 cacee(caceeRRun2, 0xe0, 0);
@@ -93,6 +100,7 @@ cacee_flip(caceeLSad, 0xf0, 0);
 
 thwomp(thwompRStand, 0xc8, 3);
 
+powerup(powerupRStand, 0xd0, 2);
 
 // define a 2x2 metasprites
 const unsigned char cacee[]={
@@ -171,8 +179,11 @@ sbyte def_thwomp_y;
 
 // stars x and y coordinates
 
-byte starOne_x = 145;
-byte starOne_y = 125;
+byte powerup_x;
+byte powerup_y; 
+
+byte starOne_x = 141;
+byte starOne_y = 120;
 
 byte starTwo_x = 80;
 byte starTwo_y = 125;
@@ -200,7 +211,7 @@ bool starTwo = true;
 bool starThree = true;
 
 //score value
-byte score;
+byte score = 0;
 // lives value
 byte lives = 3; 
 
@@ -342,6 +353,15 @@ bool thwomp_collision()
       }
 }
 
+bool powerup_collision()
+{
+  if(((powerup_x >= actor_x[0]-4 && powerup_x <= actor_x[0]+8)&& (powerup_y >= actor_y[0]-2 && powerup_y <= actor_y[0]+4))) //collision detected
+  {
+    score+= 1; 
+    return true;      
+  }
+}
+
 
 
   
@@ -381,12 +401,26 @@ void clear_thwomp()
   def_thwomp_y = NULL;
   thwomp_y = NULL;
 }
+
+void create_powerup(byte x, byte y)
+{
+  powerup_x = x;
+  powerup_y = y;
+}
+
+void clear_powerup()
+{
+  powerup_x = NULL;
+  powerup_y = NULL;
+}
 void levelOne()
 {
   clear_platforms();
   clear_thwomp();
+  clear_powerup();
   level_one_platforms();
   create_thwomp(190, 95);
+  create_powerup(starOne_x, starOne_y);
   
   //check if its our first load into game
   if(first)
@@ -550,8 +584,8 @@ void main() {
       oam_id = oam_meta_spr(thwomp_x, thwomp_y, oam_id, thwompRStand);
         if (starOne)
         {
+          oam_id = oam_meta_spr(powerup_x, powerup_y, oam_id, powerupRStand);
           
-          oam_id = oam_spr(starOne_x, starOne_y, 0x18, 2, oam_id);
         }
     }
     
@@ -727,6 +761,9 @@ void main() {
         iFrames -= 1; 
       }
       
+      powerup_collision();
+      
+      
       
     }
    
@@ -745,23 +782,23 @@ void main() {
       
    
     //Draws and updates Scoreboard
-    //oam_id = oam_spr(184, 10, 83, 2, oam_id);
-   // oam_id = oam_spr(192, 10, 67, 2, oam_id);
-   // oam_id = oam_spr(200, 10, 79, 2, oam_id);
-   // oam_id = oam_spr(208, 10, 82, 2, oam_id);
-   // oam_id = oam_spr(216, 10, 69, 2, oam_id);
-   // oam_id = oam_spr(224, 10, 58, 2, oam_id);
-   // oam_id = oam_spr(232, 10, (score/10%10)+48, 2, oam_id);
-  //  oam_id = oam_spr(240, 10, (score%10)+48, 2, oam_id);
+    oam_id = oam_spr(184, 10, 83, 2, oam_id);
+    oam_id = oam_spr(192, 10, 67, 2, oam_id);
+    oam_id = oam_spr(200, 10, 79, 2, oam_id);
+    oam_id = oam_spr(208, 10, 82, 2, oam_id);
+    oam_id = oam_spr(216, 10, 69, 2, oam_id);
+    oam_id = oam_spr(224, 10, 58, 2, oam_id);
+    oam_id = oam_spr(232, 10, (score/10%10)+48, 2, oam_id);
+    oam_id = oam_spr(240, 10, (score%10)+48, 2, oam_id);
     
     //Draws and updates Lives
-   // oam_id = oam_spr(8, 10, 76, 1, oam_id);
-   // oam_id = oam_spr(16, 10, 73, 1, oam_id);
-   // oam_id = oam_spr(24, 10, 86, 1, oam_id);
-   // oam_id = oam_spr(32, 10, 69, 1, oam_id);
-   // oam_id = oam_spr(40, 10, 83, 1, oam_id);
-  //  oam_id = oam_spr(48, 10, 58, 1, oam_id);
-  //  oam_id = oam_spr(56, 10, (lives%10)+48, 1, oam_id);
+    oam_id = oam_spr(8, 10, 76, 1, oam_id);
+    oam_id = oam_spr(16, 10, 73, 1, oam_id);
+    oam_id = oam_spr(24, 10, 86, 1, oam_id);
+    oam_id = oam_spr(32, 10, 69, 1, oam_id);
+    oam_id = oam_spr(40, 10, 83, 1, oam_id);
+    oam_id = oam_spr(48, 10, 58, 1, oam_id);
+    oam_id = oam_spr(56, 10, (lives%10)+48, 1, oam_id);
     
     // hide rest of sprites
     // if we haven't wrapped oam_id around to 0
