@@ -349,7 +349,7 @@ bool thwomp_collision()
 {
   if(((thwomp_x >= actor_x[0]-4 && thwomp_x <= actor_x[0]+8)&& (thwomp_y >= actor_y[0]-2 && thwomp_y <= actor_y[0]+4))) //collision detected
   {
-    sfx_play(1,2);
+    
     return true;      
   }
 }
@@ -493,6 +493,57 @@ void levelThree()
 }
 
 
+void game_over()
+{
+  bool game_over = true;
+  char pad; 
+ 
+  music_stop();
+  setup_graphics();
+  ppu_off();
+  vram_adr(NTADR_A(10,15));
+  vram_write("GAME OVER", 9);
+  
+  vram_adr(NTADR_A(3,20));
+  vram_write("PRESS START TO PLAY AGAIN!", 26);
+  ppu_on_all();
+
+ 
+  while(game_over) 
+  { 
+    pad = pad_trigger(0);
+    if (pad & PAD_START) 
+    {
+      //go back to our starting bricks set game_over to false and play music again
+      // delete game over message
+      ppu_off();
+      
+      vram_adr(NAMETABLE_A);
+      vram_fill(0,1024);
+      
+      
+      game_over = false;
+     
+      //music_play(0); 
+      ppu_on_all();
+      
+    }
+  }
+  
+  // reset lives and score and variables
+  setup_graphics();
+  thwomp_y = def_thwomp_y;
+  thwomp_dy = 0;
+  first = true;
+  starOne = true;
+  starTwo = true;
+  starThree = true; 
+  level = 1; 
+  levelOne();
+  lives = 3;
+  score = 0;
+  
+}
 
 	
 
@@ -767,7 +818,10 @@ void main() {
       
       if( thwomp_y >= def_ground)
       {
-        sfx_play(1,2);
+        if (iFrames == 0)
+        {
+          sfx_play(1,2);
+        }
         thwomp_y = def_ground;
         thwomp_dy = -1; 
       }
@@ -784,6 +838,7 @@ void main() {
       {
         if(thwomp_collision())
         {
+          sfx_play(1,2);
           lives -= 1;
            
           iFrames = 60;
@@ -792,6 +847,16 @@ void main() {
       else
       {
         iFrames -= 1; 
+      }
+      
+      //if our lives has gone below one we have lost and its game over
+      if (lives < 1)
+      {
+        // run our game over
+        game_over();
+        
+        //setup our level one again in case person wants to play again.
+        
       }
       
       
