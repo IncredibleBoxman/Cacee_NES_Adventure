@@ -133,45 +133,7 @@ byte sprite = 0x02;
 byte sprite_y1 = 100;
 
 byte sprite_y2 = 108;
-//platform struct
-typedef struct Platform{
-  byte _x;		// platforms x/y positions
-  byte _y;		
-  byte sprite; 
-  
-};
 
-struct Platform platform_one[20];
-//This is our starting bricks, what the starting area looks like. 
-void level_one_platforms() {
-  char oam_id;
-  
-  oam_id = 0;
-  
-  platform_one[0]._x = 70;
-  platform_one[0]._y = 173;
-  platform_one[0].sprite = sprite;
-  
-  
-
- 
-    
-  
-}
-
-
-
-
-
-// setup PPU and tables
-void setup_graphics() {
-  // clear sprites
-  oam_hide_rest(0);
-  // set palette colors
-  pal_all(PALETTE);
-  // turn on PPU
-  ppu_on_all();
-}
 
 
 
@@ -216,16 +178,111 @@ int ground= 200;
 int def_ground = 200; 
 int jumpHeight = 40;
 int gravity = 2;
+// used for for loops that require int
+int num;
+// used to determine the x value of collision; 
+int collision;
+
+//platform struct
+typedef struct Platform{
+  byte _x;		// platforms x/y positions
+  byte _y;		
+  byte sprite; 
+  
+};
+//fill our struct with 20 to use
+struct Platform platform_one[20];
+ 
+
+//
+void create_platforms(int x, int y, int z)
+{
+  platform_one[z]._x = x;
+  platform_one[z]._y = y;
+  platform_one[z].sprite = sprite;
+  
+  platform_one[z+1]._x = x+8;
+  platform_one[z+1]._y = y;
+  platform_one[z+1].sprite = sprite;
+}
+
+void clear_platforms()
+{
+  for (num = 0; num<= 20; num++)
+  {
+    platform_one[num]._x = NULL;
+    platform_one[num]._y = NULL;
+    platform_one[num].sprite = NULL; 
+  }
+}
+
+//this is our starting level platforms
+void level_one_platforms() {
+  create_platforms(70, 173, 0);
+  
+  create_platforms(105, 145, 2);
+  
+  create_platforms(140, 120, 4);
+  //platform_one[0]._x = 70;
+  //platform_one[0]._y = 173;
+  //platform_one[0].sprite = sprite;
+  
+  //platform_one[1]._x = 78;
+  //platform_one[1]._y = 173;
+  //platform_one[1].sprite = sprite;
+}
+
+void level_two_platforms() {
+  create_platforms(90, 173, 0);
+  
+  create_platforms(125, 145, 2);
+  
+  create_platforms(75, 120, 4); 
+}
+
+void level_three_platforms() {
+  create_platforms(90, 173, 0);
+  
+  create_platforms(55, 145, 2);
+  
+  create_platforms(85, 115, 4); 
+  
+  create_platforms(100, 85, 6);
+  
+  create_platforms(160, 100, 8);
+  
+  
+}
+
+
+
+
+
+
+// setup PPU and tables
+void setup_graphics() {
+  // clear sprites
+  oam_hide_rest(0);
+  // set palette colors
+  pal_all(PALETTE);
+  // turn on PPU
+  ppu_on_all();
+}
 
 
 //This checks if player has collided with a platform and returns true if so.
 bool platform_collision(){
-  if(((platform_one[0]._x >= actor_x[0]-4 && platform_one[0]._x <= actor_x[0]+8)&& (platform_one[0]._y >= actor_y[0]-2 && platform_one[0]._y <= actor_y[0]+4))) //collision detected
+  // loops through all our struct of platforms
+  for( num = 0; num <= 20; num++)
+  {
+    //checks if actor has collided with our platforms
+  if(((platform_one[num]._x >= actor_x[0]-4 && platform_one[num]._x <= actor_x[0]+8)&& (platform_one[num]._y >= actor_y[0]-2 && platform_one[num]._y <= actor_y[0]+4))) //collision detected
       {
-       
+        collision = platform_one[num]._y;
         return true;      
         
       }
+  }
   
 }
 
@@ -252,6 +309,7 @@ void startingSpaceR()
 }
 void levelOne()
 {
+  clear_platforms();
   level_one_platforms();
   //check if its our first load into game
   if(first)
@@ -275,7 +333,8 @@ void levelOne()
 // level 2
 void levelTwo()
 {
-  
+  clear_platforms();
+  level_two_platforms();
   sfx_play(3,2);
   if (twoLeft)
   {
@@ -296,6 +355,8 @@ void levelTwo()
 // level 3 
 void levelThree()
 {
+  clear_platforms();
+  level_three_platforms();
   sfx_play(3,2);
   startingSpace();
   level = 3;
@@ -311,7 +372,7 @@ void levelThree()
 // main program
 
 void main() {
- char pad2;  
+  
   
  
   //score = 0;
@@ -343,6 +404,8 @@ void main() {
     // set our minx and maxx values
     MINX = 10;
     MAXX = 220;
+    // start with OAMid/sprite 0
+    oam_id = 0;
     
     
     //if we've reached the right side of the screen transition based on 
@@ -377,13 +440,40 @@ void main() {
     
    
      
-    // start with OAMid/sprite 0
-    oam_id = 0;
+    
     
      
-      
-      
-     oam_id = oam_spr(platform_one[0]._x, platform_one[0]._y+17, platform_one[0].sprite, 0x01, oam_id);
+    // loop through our platforms. 
+    
+    if(level == 1)
+    {
+      for (i = 0; i<= 5; i++)
+      {
+      // add 17 to y in order for us to stand on top of platform
+        oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
+        oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
+      }
+    }
+    
+    if(level == 2)
+    {
+      for (i = 0; i<= 5; i++)
+      {
+      // add 17 to y in order for us to stand on top of platform
+        oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
+        oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
+      }
+    }
+    
+    if(level == 3)
+    {
+      for (i = 0; i<= 9; i++)
+      {
+      // add 17 to y in order for us to stand on top of platform
+        oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
+        oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
+      }
+    }
      // oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y, platform_one[i].sprite, 0x00, oam_id);
    //  
     
@@ -392,7 +482,7 @@ void main() {
     
     // 1 player controller setup. 
       pad = pad_poll(0);
-      pad2 = pad_trigger(0);
+      
       // move actor[i] left/right
       if (pad&PAD_LEFT && actor_x[0]>10) 
       {
@@ -421,10 +511,10 @@ void main() {
     // if we have are on top of the platform
     if (platform_collision())
     {
-      // set ground to platform height - 17
+      // set ground to platform height 
       if (!jump)
       {
-      ground = 173;
+      ground = collision;
       }
       
     }
