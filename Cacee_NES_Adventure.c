@@ -67,6 +67,14 @@ const unsigned char name[]={\
         0,      8,      (code)+3,   (pal)|OAM_FLIP_H, \
         128};
 
+#define thwomp(name,code,pal)\
+const unsigned char name[]={\
+        0,      0,      (code)+0,   pal, \
+        0,      8,      (code)+1,   pal, \
+        8,      0,      (code)+2,   pal, \
+        8,      8,      (code)+3,   pal, \
+        128};
+
 cacee(caceeRStand, 0xd8, 0);
 cacee(caceeRRun1, 0xdc, 0);
 cacee(caceeRRun2, 0xe0, 0);
@@ -82,6 +90,9 @@ cacee_flip(caceeLRun3, 0xe4, 0);
 cacee_flip(caceeLJump, 0xe8, 0);
 cacee_flip(caceeLClimb, 0xec, 0);
 cacee_flip(caceeLSad, 0xf0, 0);
+
+thwomp(thwompRStand, 0xc8, 3);
+
 
 // define a 2x2 metasprites
 const unsigned char cacee[]={
@@ -122,7 +133,7 @@ const char PALETTE[32] = {
   0x2A,0x16,0x27,0x00,	// sprite palette 0
   0x00,0x37,0x2C,0x00,	// sprite palette 1
   0x0D,0x2D,0x27,0x00,	// sprite palette 2
-  0x0D,0x26,0x16	// sprite palette 3
+  0x16,0x0D,0x0D	// sprite palette 3
 };
 
 
@@ -147,9 +158,30 @@ byte actor_y[NUM_ACTORS];
 // actor x/y deltas per frame (signed)
 sbyte actor_dx[NUM_ACTORS];
 sbyte actor_dy[NUM_ACTORS];
+
+// thwomp x/y position
+byte thwomp_x;
+byte thwomp_y;
+
+//thwomp x/y deltas per frame (signed)
+sbyte thwomp_dx;
+sbyte thwomp_dy;
+///default thwomp height
+sbyte def_thwomp_y;
+
+// stars x and y coordinates
+
+byte starOne_x = 145;
+byte starOne_y = 125;
+
+byte starTwo_x = 80;
+byte starTwo_y = 125;
+
+byte starThree_x = 165;
+byte starThree_y = 105;
 //min and max X screen values
-int MINX;
-int MAXX;
+byte MINX;
+byte MAXX;
 
 // game bool value
 bool game = true;
@@ -161,10 +193,16 @@ bool first = true;
 bool twoLeft = true;
 
 bool jump = false;
+
+bool levelChange;
+bool starOne = true;
+bool starTwo = true;
+bool starThree = true;
+
 //score value
-int score;
+byte score;
 // lives value
-int lives; 
+byte lives = 3; 
 
 // level value
 
@@ -174,14 +212,15 @@ char i;	// actor index
 char oam_id;	// sprite ID
 char pad;// controller flags
 
-int ground= 200;
-int def_ground = 200; 
-int jumpHeight = 40;
-int gravity = 2;
+byte ground= 200;
+byte def_ground = 200; 
+byte jumpHeight = 40;
+byte gravity = 2;
+byte iFrames = 0;
 // used for for loops that require int
 int num;
 // used to determine the x value of collision; 
-int collision;
+byte collision;
 
 //platform struct
 typedef struct Platform{
@@ -191,11 +230,11 @@ typedef struct Platform{
   
 };
 //fill our struct with 20 to use
-struct Platform platform_one[20];
+struct Platform platform_one[10];
  
 
 //
-void create_platforms(int x, int y, int z)
+void create_platforms(byte x, byte y, byte z)
 {
   platform_one[z]._x = x;
   platform_one[z]._y = y;
@@ -286,6 +325,28 @@ bool platform_collision(){
   
 }
 
+bool thwomp_see(byte x){
+  if (thwomp_x == x)
+  {
+    return true;
+  }
+  else
+    return false;
+}
+
+bool thwomp_collision()
+{
+  if(((thwomp_x >= actor_x[0]-4 && thwomp_x <= actor_x[0]+8)&& (thwomp_y >= actor_y[0]-2 && thwomp_y <= actor_y[0]+4))) //collision detected
+      {
+        return true;      
+      }
+}
+
+
+
+  
+
+
 
 
  
@@ -307,10 +368,26 @@ void startingSpaceR()
   actor_dx[0] = 0;
   actor_dy[0] = 0;
 }
+
+void create_thwomp(byte x, byte y)
+{
+  thwomp_x = x;
+  def_thwomp_y = y;
+  thwomp_y = def_thwomp_y;
+}
+void clear_thwomp()
+{
+  thwomp_x = NULL;
+  def_thwomp_y = NULL;
+  thwomp_y = NULL;
+}
 void levelOne()
 {
   clear_platforms();
+  clear_thwomp();
   level_one_platforms();
+  create_thwomp(190, 95);
+  
   //check if its our first load into game
   if(first)
   {
@@ -334,7 +411,9 @@ void levelOne()
 void levelTwo()
 {
   clear_platforms();
+  clear_thwomp();
   level_two_platforms();
+  create_thwomp(150, 43);
   sfx_play(3,2);
   if (twoLeft)
   {
@@ -356,6 +435,7 @@ void levelTwo()
 void levelThree()
 {
   clear_platforms();
+  clear_thwomp();
   level_three_platforms();
   sfx_play(3,2);
   startingSpace();
@@ -401,6 +481,7 @@ void main() {
   levelOne();
   
   while (game) {
+    levelChange = false;
     // set our minx and maxx values
     MINX = 10;
     MAXX = 220;
@@ -412,6 +493,7 @@ void main() {
     // what level we are currently at
     if (actor_x[0] >= MAXX)
       {
+      levelChange = true;
       	if(level == 1)
         {
           twoLeft = true;
@@ -426,6 +508,7 @@ void main() {
     // what level we are currently at
      else if (actor_x[0] <= MINX)
       {
+       levelChange = true;
         if(level == 2)
           levelOne();
         else if(level == 3)
@@ -442,7 +525,8 @@ void main() {
      
     
     
-     
+     //if we've changed levels, destroy thwomps
+    
     // loop through our platforms. 
     
     if(level == 1)
@@ -452,6 +536,12 @@ void main() {
       // add 17 to y in order for us to stand on top of platform
         oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
         oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
+        oam_id = oam_meta_spr(thwomp_x, thwomp_y, oam_id, thwompRStand);
+        if (starOne)
+        {
+          
+          oam_id = oam_spr(starOne_x, starOne_y, 0x18, 2, oam_id);
+        }
       }
     }
     
@@ -462,6 +552,12 @@ void main() {
       // add 17 to y in order for us to stand on top of platform
         oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
         oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
+        oam_id = oam_meta_spr(thwomp_x, thwomp_y, oam_id, thwompRStand);
+        if (starTwo)
+        {
+          oam_id = oam_spr(starTwo_x, starTwo_y, 0x18, 2, oam_id);
+        }
+        
       }
     }
     
@@ -472,12 +568,18 @@ void main() {
       // add 17 to y in order for us to stand on top of platform
         oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
         oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
+        //check if we've grabbed the star yet
+        if (starThree)
+        {
+          oam_id = oam_spr(165, 105, 0x18, 2, oam_id);
+          oam_id = oam_spr(starThree_x, starThree_y, 0x18, 2, oam_id);
+        }
       }
     }
      // oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y, platform_one[i].sprite, 0x00, oam_id);
    //  
-    
-    oam_id = oam_spr(100, 100, 48+level, level, oam_id);
+    // displays our current level for debug purposes
+    //oam_id = oam_spr(100, 100, 48+level, level, oam_id);
     
     
     // 1 player controller setup. 
@@ -577,7 +679,39 @@ void main() {
       if(actor_y[i] >= ground)
         actor_y[i] = ground;
       
+       
+      if (thwomp_see(actor_x[i]))
+      {
+        thwomp_dy = gravity +2; 
+        oam_id = oam_meta_spr(thwomp_x, thwomp_y, oam_id, thwompRStand);
+      }
+      thwomp_y += thwomp_dy;
+      // if thwomp has hit the ground, start rising again.
       
+      if( thwomp_y >= def_ground)
+        thwomp_dy = -1; 
+      // if thwomp has reached its default height then stop rising
+      if(thwomp_y == def_thwomp_y)
+        thwomp_dy = 0;
+      if(levelChange)
+      {
+        thwomp_y = def_thwomp_y;
+        thwomp_dy = 0;
+        oam_id = oam_meta_spr(thwomp_x, thwomp_y, oam_id, thwompRStand);
+      }
+      if(iFrames == 0) 
+      {
+        if(thwomp_collision())
+        {
+          lives -= 1;
+           
+          iFrames = 60;
+        }
+      }
+      else
+      {
+        iFrames -= 1; 
+      }
       
       
     }
@@ -597,23 +731,23 @@ void main() {
       
    
     //Draws and updates Scoreboard
-    //oam_id = oam_spr(184, 10, 83, 3, oam_id);
-    //oam_id = oam_spr(192, 10, 67, 3, oam_id);
-    //oam_id = oam_spr(200, 10, 79, 3, oam_id);
-    //oam_id = oam_spr(208, 10, 82, 3, oam_id);
-    //oam_id = oam_spr(216, 10, 69, 3, oam_id);
-    //oam_id = oam_spr(224, 10, 58, 3, oam_id);
-    //oam_id = oam_spr(232, 10, (score/10%10)+48, 3, oam_id);
-    //oam_id = oam_spr(240, 10, (score%10)+48, 3, oam_id);
+    oam_id = oam_spr(184, 10, 83, 2, oam_id);
+    oam_id = oam_spr(192, 10, 67, 2, oam_id);
+    oam_id = oam_spr(200, 10, 79, 2, oam_id);
+    oam_id = oam_spr(208, 10, 82, 2, oam_id);
+    oam_id = oam_spr(216, 10, 69, 2, oam_id);
+    oam_id = oam_spr(224, 10, 58, 2, oam_id);
+    oam_id = oam_spr(232, 10, (score/10%10)+48, 2, oam_id);
+    oam_id = oam_spr(240, 10, (score%10)+48, 2, oam_id);
     
     //Draws and updates Lives
-    //oam_id = oam_spr(8, 10, 76, 1, oam_id);
-    //oam_id = oam_spr(16, 10, 73, 1, oam_id);
-    //oam_id = oam_spr(24, 10, 86, 1, oam_id);
-    //oam_id = oam_spr(32, 10, 69, 1, oam_id);
-    //oam_id = oam_spr(40, 10, 83, 1, oam_id);
-    //oam_id = oam_spr(48, 10, 58, 1, oam_id);
-    //oam_id = oam_spr(56, 10, (lives%10)+48, 1, oam_id);
+    oam_id = oam_spr(8, 10, 76, 1, oam_id);
+    oam_id = oam_spr(16, 10, 73, 1, oam_id);
+    oam_id = oam_spr(24, 10, 86, 1, oam_id);
+    oam_id = oam_spr(32, 10, 69, 1, oam_id);
+    oam_id = oam_spr(40, 10, 83, 1, oam_id);
+    oam_id = oam_spr(48, 10, 58, 1, oam_id);
+    oam_id = oam_spr(56, 10, (lives%10)+48, 1, oam_id);
     
     // hide rest of sprites
     // if we haven't wrapped oam_id around to 0
