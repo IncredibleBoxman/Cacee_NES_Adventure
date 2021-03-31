@@ -344,6 +344,7 @@ void title()
       ppu_on_all();
     }
   }
+  music_play(0);
 }
 
 //
@@ -733,7 +734,7 @@ void main() {
    // set music callback function for NMI
   nmi_set_callback(famitone_update);
   // play music
-  music_play(0);
+  //music_play(0);
   
   title();
 
