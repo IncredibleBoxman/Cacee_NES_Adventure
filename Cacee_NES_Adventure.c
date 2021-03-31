@@ -209,6 +209,7 @@ bool levelChange;
 bool starOne = true;
 bool starTwo = true;
 bool starThree = true;
+bool onPlatform;
 
 //score value
 byte score = 0;
@@ -321,17 +322,18 @@ void setup_graphics() {
 
 
 //This checks if player has collided with a platform and returns true if so.
-bool platform_collision(){
+void platform_collision(){
   // loops through all our struct of platforms
   for( num = 0; num <= 20; num++)
   {
     //checks if actor has collided with our platforms
-  if(((platform_one[num]._x >= actor_x[0]-4 && platform_one[num]._x <= actor_x[0]+8)&& (platform_one[num]._y >= actor_y[0]-2 && platform_one[num]._y <= actor_y[0]+4))) //collision detected
-      {
-        collision = platform_one[num]._y;
-        return true;      
-        
-      }
+    if(((platform_one[num]._x >= actor_x[0]-4 && platform_one[num]._x <= actor_x[0]+8)&& (platform_one[num]._y >= actor_y[0]-2 && platform_one[num]._y <= actor_y[0]+4))) //collision detected
+    {
+      collision = platform_one[num]._y;
+      onPlatform = true;
+            
+    }
+  
   }
   
 }
@@ -352,6 +354,8 @@ bool thwomp_collision()
     
     return true;      
   }
+  else
+    return false;
 }
 
 bool powerup_collision()
@@ -362,6 +366,8 @@ bool powerup_collision()
     score+= 1; 
     return true;      
   }
+  else 
+    return false;
 }
 
 
@@ -417,9 +423,11 @@ void clear_powerup()
 }
 void levelOne()
 {
+  ppu_off();
   clear_platforms();
   clear_thwomp();
   clear_powerup();
+  setup_graphics();
   level_one_platforms();
   create_thwomp(190, 95);
   if(starOne)
@@ -449,10 +457,13 @@ void levelOne()
 // level 2
 void levelTwo()
 {
+  ppu_off();
   clear_platforms();
   clear_thwomp();
+  setup_graphics();
   level_two_platforms();
-  create_thwomp(150, 43);
+  
+  create_thwomp(100, 43);
   if(starTwo)
   {
     create_powerup(starTwo_x, starTwo_y);
@@ -477,10 +488,12 @@ void levelTwo()
 // level 3 
 void levelThree()
 {
+  ppu_off();
   clear_platforms();
   clear_thwomp();
+  setup_graphics();
   level_three_platforms();
-  create_thwomp(180, 95);
+  create_thwomp(130, 120);
   if(starThree)
   {
     create_powerup(starThree_x, starThree_y);
@@ -492,6 +505,19 @@ void levelThree()
   
 }
 
+void game_reset()
+{
+  thwomp_y = def_thwomp_y;
+  thwomp_dy = 0;
+  first = true;
+  starOne = true;
+  starTwo = true;
+  starThree = true; 
+  level = 1; 
+  levelOne();
+  lives = 3;
+  score = 0;
+}
 
 void game_over()
 {
@@ -532,17 +558,51 @@ void game_over()
   
   // reset lives and score and variables
   setup_graphics();
-  thwomp_y = def_thwomp_y;
-  thwomp_dy = 0;
-  first = true;
-  starOne = true;
-  starTwo = true;
-  starThree = true; 
-  level = 1; 
-  levelOne();
-  lives = 3;
-  score = 0;
+  game_reset();
   
+}
+
+// our win function
+void winner()
+{
+  //setup variables and stop music
+  bool game_over = true;
+  char pad; 
+  music_stop();
+  setup_graphics();
+  ppu_off();
+  
+  // display win message
+  vram_adr(NTADR_A(10,15));
+  vram_write("YOU WIN!", 9);
+  
+  vram_adr(NTADR_A(3,20));
+  vram_write("PRESS START TO PLAY AGAIN!", 26);
+  ppu_on_all();
+  //while we are on this screen check if player hit start
+  while(game_over) 
+  { 
+    pad = pad_trigger(0);
+    if (pad & PAD_START) 
+    {
+      //go back to our starting bricks set game_over to false and play music again
+      // delete game over message
+      ppu_off();
+      vram_adr(NAMETABLE_A);
+      vram_fill(0,1024);
+      
+      
+      
+      game_over = false;
+     
+      //music_play(0); 
+      ppu_on_all();
+      
+    }
+  }
+  // reset lives and score and variables
+  setup_graphics();
+  game_reset();
 }
 
 	
@@ -657,7 +717,7 @@ void main() {
       }
     }
     
-    if(level == 2)
+    else if(level == 2)
     {
       for (i = 0; i<= 5; i++)
       {
@@ -681,7 +741,7 @@ void main() {
         }
     }
     
-    if(level == 3)
+    else if(level == 3)
     {
       for (i = 0; i<= 9; i++)
       {
@@ -739,17 +799,19 @@ void main() {
       
     
     // if we have are on top of the platform
-    if (platform_collision())
+    platform_collision();
+    if (onPlatform)
     {
       // set ground to platform height 
       if (!jump)
       {
       ground = collision;
+      onPlatform = false;
       }
       
     }
     // if we are not on top of the platform, and our actor is higher than default ground, and our actor 
-    else if ((!platform_collision() && actor_y[0] < def_ground && actor_y[0] < ground-jumpHeight) || (actor_x[0]-4 > platform_one[0]._x) || (actor_x[0]+4 < platform_one[0]._x) )
+    else if ((!onPlatform && actor_y[0] < def_ground && actor_y[0] < ground-jumpHeight) || (actor_x[0]-4 > platform_one[0]._x) || (actor_x[0]+4 < platform_one[0]._x) )
     {
       // set ground back to default
       if (!jump)
@@ -855,8 +917,14 @@ void main() {
         // run our game over
         game_over();
         
-        //setup our level one again in case person wants to play again.
         
+        
+      }
+      // if we have all the pickups, then we win 
+      if (score == 3)
+      {
+        //run our winner 
+        winner();
       }
       
       
