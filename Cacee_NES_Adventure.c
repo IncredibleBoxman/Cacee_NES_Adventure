@@ -83,8 +83,27 @@ void __fastcall__ famitone_update(void);
 
 //#link "journey_to_silius.s"
 extern char journey_to_silius_music_data[];
+// CREDIT FOR JOURNEY GOES TO FAMISTUDIO, THIS IS 
+// ONE OF THEIR DEFAULT SONGS
+
 //#link "music_aftertherain.s"
 extern char after_the_rain_music_data[];
+
+//#link "megalovania.s"
+extern char megalovania_music_data[];
+// CREDIT FOR MEGALOVANIA GOES TO
+// http://forums.famitracker.com/viewtopic.php?f=9&t=4834&p=23911&hilit=megalovania#p23911
+
+
+//#link "my_lost_soul_danmaku.s"
+extern char my_lost_soul_danmaku_music_data[];
+// CREDIT FOR MY LOST SOUL GOES TO DRILLIMATION
+// http://forums.famitracker.com/viewtopic.php?f=8&t=4865&p=23965&hilit=sad+song#p23965
+
+
+
+
+
 //#link "demosounds.s"
 extern char demo_sounds[];
 
@@ -635,6 +654,7 @@ void game_reset()
   lives = 3;
   score = 0;
   ground = def_ground;
+  
 }
 
 void game_over()
@@ -643,6 +663,8 @@ void game_over()
   char pad; 
  
   music_stop();
+  famitone_init(my_lost_soul_danmaku_music_data);
+  music_play(0);
   setup_graphics();
   ppu_off();
   show_screen(Game_Over_Screen_pal, Game_Over_Screen_rle);
@@ -662,7 +684,8 @@ void game_over()
       
       
       game_over = false;
-     
+      music_stop();
+      famitone_init(journey_to_silius_music_data);
       music_play(0); 
       ppu_on_all();
       
@@ -682,6 +705,8 @@ void winner()
   bool game_over = true;
   char pad; 
   music_stop();
+  famitone_init(megalovania_music_data);
+  music_play(0);
   setup_graphics();
   ppu_off();
   show_screen(Win_Screen_pal, Win_Screen_rle);
@@ -699,7 +724,8 @@ void winner()
       
       
       game_over = false;
-     
+      music_stop();
+      famitone_init(journey_to_silius_music_data);
       music_play(0); 
       ppu_on_all();
       
@@ -734,6 +760,7 @@ void main() {
 
   //PLAY MUSIC 
   famitone_init(journey_to_silius_music_data);
+  
   // Set demosounds
   sfx_init(demo_sounds); 
    // set music callback function for NMI
