@@ -10,6 +10,8 @@
 // include NESLIB header
 #include "neslib.h"
 
+
+
 // include CC65 NES Header (PPU)
 #include <nes.h>
 
@@ -78,6 +80,9 @@ extern const byte Win_Screen_rle[];
 
 
 void __fastcall__ famitone_update(void);
+
+//#link "journey_to_silius.s"
+extern char journey_to_silius_music_data[];
 //#link "music_aftertherain.s"
 extern char after_the_rain_music_data[];
 //#link "demosounds.s"
@@ -728,7 +733,7 @@ void main() {
   
 
   //PLAY MUSIC 
-  famitone_init(after_the_rain_music_data);
+  famitone_init(journey_to_silius_music_data);
   // Set demosounds
   sfx_init(demo_sounds); 
    // set music callback function for NMI
