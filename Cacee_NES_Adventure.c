@@ -86,12 +86,18 @@ extern char journey_to_silius_music_data[];
 // CREDIT FOR JOURNEY GOES TO FAMISTUDIO, THIS IS 
 // ONE OF THEIR DEFAULT SONGS
 
+
+//#link "rickroll.s"
+extern char rickroll_music_data[];
+// credit for rickroll goes to Amilgi
+// http://famitracker.com/forum/posts.php?id=5856
+
 //#link "music_aftertherain.s"
 extern char after_the_rain_music_data[];
 
 //#link "megalovania.s"
 extern char megalovania_music_data[];
-// CREDIT FOR MEGALOVANIA GOES TO
+// CREDIT FOR MEGALOVANIA GOES TO mentlegen
 // http://forums.famitracker.com/viewtopic.php?f=9&t=4834&p=23911&hilit=megalovania#p23911
 
 
@@ -299,7 +305,7 @@ byte jumpHeight = 40;
 byte gravity = 2;
 byte iFrames = 0;
 // used for for loops that require int
-int num;
+byte num;
 // used to determine the x value of collision; 
 byte collision;
 
@@ -389,26 +395,27 @@ void create_platforms(byte x, byte y, byte z)
 {
   platform_one[z]._x = x;
   platform_one[z]._y = y;
-  platform_one[z].sprite = sprite;
+  //platform_one[z].sprite = sprite;
   
   platform_one[z+1]._x = x+8;
   platform_one[z+1]._y = y;
-  platform_one[z+1].sprite = sprite;
+ // platform_one[z+1].sprite = sprite;
 }
 
 
 void clear_platforms()
 {
-  for (num = 0; num<= 20; num++)
+  for (num = 0; num<= 10; num++)
  {
     platform_one[num]._x = NULL;
     platform_one[num]._y = NULL;
-    platform_one[num].sprite = NULL; 
+    //platform_one[num].sprite = NULL; 
   }
 }
 
 //this is our starting level platforms
 void level_one_platforms() {
+  
   create_platforms(70, 175, 0);
   
   create_platforms(105, 145, 2);
@@ -559,7 +566,7 @@ void levelOne()
   ppu_off();
   clear_platforms();
   clear_thwomp();
-  clear_powerup();
+  //clear_powerup();
   setup_graphics();
   show_screen(Test_Screen_pal, Test_Screen_rle);
   level_one_platforms();
@@ -663,7 +670,8 @@ void game_over()
   char pad; 
  
   music_stop();
-  famitone_init(my_lost_soul_danmaku_music_data);
+  //famitone_init(my_lost_soul_danmaku_music_data);
+  famitone_init(rickroll_music_data);
   music_play(0);
   setup_graphics();
   ppu_off();
