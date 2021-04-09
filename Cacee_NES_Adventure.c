@@ -113,6 +113,11 @@ extern char my_lost_soul_danmaku_music_data[];
 //#link "demosounds.s"
 extern char demo_sounds[];
 
+
+//#link "custom_sounds.s"
+extern char custom_sounds[];
+
+
 // create easy to track tile/attr for metasprites 
 #define TILE 0xd8
 #define ATTR 0x00
@@ -471,6 +476,7 @@ void platform_collision(){
     {
       collision = platform_one[num]._y;
       onPlatform = true;
+      
             
     }
   
@@ -502,7 +508,7 @@ bool powerup_collision()
 {
   if(((powerup_x >= actor_x[0]-4 && powerup_x <= actor_x[0]+8)&& (powerup_y >= actor_y[0]-2 && powerup_y <= actor_y[0]+4))) //collision detected
   {
-    sfx_play(2,2);
+    sfx_play(2,1);
     score+= 1; 
     return true;      
   }
@@ -587,7 +593,7 @@ void levelOne()
   else
   {
     startingSpaceR();
-    sfx_play(3,2);
+    //sfx_play(4,2);
   }
   
     
@@ -610,7 +616,7 @@ void levelTwo()
   {
     create_powerup(starTwo_x, starTwo_y);
   }
-  sfx_play(3,2);
+  //sfx_play(3,2);
   if (twoLeft)
   {
     twoLeft = false;
@@ -641,7 +647,7 @@ void levelThree()
   {
     create_powerup(starThree_x, starThree_y);
   }
-  sfx_play(3,2);
+  //sfx_play(3,2);
   startingSpace();
   level = 3;
   
@@ -769,8 +775,8 @@ void main() {
   //PLAY MUSIC 
   famitone_init(journey_to_silius_music_data);
   
-  // Set demosounds
-  sfx_init(demo_sounds); 
+  // Set custom sounds
+  sfx_init(custom_sounds); 
    // set music callback function for NMI
   nmi_set_callback(famitone_update);
   // play music
@@ -846,8 +852,8 @@ void main() {
       for (i = 0; i<= 5; i++)
       {
       // add 17 to y in order for us to stand on top of platform
-       // oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
-      //  oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
+       //oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
+       //oam_id = oam_spr(platform_one[i]._x, platform_one[i]._y+17, platform_one[i].sprite, 0x01, oam_id);
         
       }
       oam_id = oam_meta_spr(thwomp_x, thwomp_y, oam_id, thwompRStand);
@@ -936,6 +942,7 @@ void main() {
        
       if (pad & PAD_A &&  actor_y[0] == ground)			//Prototype jumping
       { 
+        sfx_play(6,2);
         jump = true; 
         actor_dy[0]=-gravity;
        
@@ -952,6 +959,7 @@ void main() {
       {
       ground = collision;
       onPlatform = false;
+        
       }
       
     }
@@ -1012,7 +1020,10 @@ void main() {
       }
       //Set actor back on Plane after jumping if he falls too far
       if(actor_y[i] >= ground)
+      {
         actor_y[i] = ground;
+        
+      }
       
        
       if (thwomp_see(actor_x[i], actor_y[i]))
@@ -1027,7 +1038,7 @@ void main() {
       {
         if (iFrames == 0)
         {
-          sfx_play(1,2);
+          sfx_play(9,3);
         }
         thwomp_y = def_ground;
         thwomp_dy = -1; 
@@ -1045,7 +1056,7 @@ void main() {
       {
         if(thwomp_collision())
         {
-          sfx_play(1,2);
+          sfx_play(9,3);
           lives -= 1;
            
           iFrames = 60;
